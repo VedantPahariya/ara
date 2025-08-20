@@ -39,18 +39,12 @@ inline int64_t get_timer() { return timer; }
 #else
 #define HW_CNT_READY ;
 #define HW_CNT_NOT_READY ;
-// Start and stop the counter
-inline void start_timer() {
-  while (0)
-    ;
-}
-inline void stop_timer() {
-  while (0)
-    ;
-}
+// Start and stop the counter - Enable timing for SPIKE
+inline void start_timer() { timer = -get_cycle_count(); }
+inline void stop_timer() { timer += get_cycle_count(); }
 
 // Get the value of the timer
-inline int64_t get_timer() { return 0; }
+inline int64_t get_timer() { return timer; }
 #endif
 
 #endif // _RUNTIME_H_

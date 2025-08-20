@@ -1,0 +1,31 @@
+
+===========
+=  FDOTP  =
+===========
+
+
+Calulating 64b dotp with vectors with length = 8
+Vector runtime: 28
+Scalar runtime: 58
+Checking results: v = %f, s = %f
+Calulating 64b dotp with vectors with length = 64
+Vector runtime: 28
+Scalar runtime: 254
+Checking results: v = %f, s = %f
+Calulating 32b dotp with vectors with length = 8
+Vector runtime: 28
+Scalar runtime: 58
+Checking results: v = %f, s = %f
+Calulating 32b dotp with vectors with length = 64
+Vector runtime: 28
+Scalar runtime: 254
+Checking results: v = %f, s = %f
+Calulating 16b dotp with vectors with length = 8
+Vector runtime: 28
+Scalar runtime: 58
+Checking results: v = 3f95, s = 3f96
+Calulating 16b dotp with vectors with length = 64
+Vector runtime: 28
+Scalar runtime: 254
+Checking results: v = 4c6c, s = 4c6d
+SUCCESS.

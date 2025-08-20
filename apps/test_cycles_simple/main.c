@@ -76,7 +76,7 @@ int main() {
 #endif
     printf("\n");
     printf("------------------------------------------------------------\n");
-    printf("Calculating a (%ld x %ld) x (%ld x %ld) matrix multiplication...\n", s,
+    printf("Calculating a (%d x %d) x (%d x %d) matrix multiplication...\n", s,
            s, s, s);
     printf("------------------------------------------------------------\n");
     printf("\n");
@@ -92,18 +92,9 @@ int main() {
     float performance = 2.0 * s * s * s / runtime;
     float utilization = 100 * performance / (2.0 * NR_LANES);
 
-    printf("The execution took %ld cycles.\n", runtime);
-#ifdef SPIKE
-    // Use integer approximations for SPIKE (no float printf support)
-    int performance_int = (int)(performance * 1000); // Scale by 1000
-    int utilization_int = (int)(utilization * 1000);
-    printf("The performance is %d.%03d FLOP/cycle (%d.%03d%% utilization).\n",
-           performance_int/1000, performance_int%1000, 
-           utilization_int/1000, utilization_int%1000);
-#else
+    printf("The execution took %d cycles.\n", runtime);
     printf("The performance is %f FLOP/cycle (%f%% utilization).\n",
            performance, utilization);
-#endif
 
     // Verify the result only for s == M (to keep it simple)
     if (s == M) {
@@ -111,7 +102,7 @@ int main() {
       int error = verify_matrix(c, g, s, s, THRESHOLD);
       if (error != 0) {
         printf("Error code %d\n", error);
-        printf("c[%d]=%f\n", error, c[error]);
+        printf("c[%d]=%d\n", error, c[error]);
         return error;
       } else {
         printf("Passed.\n");
