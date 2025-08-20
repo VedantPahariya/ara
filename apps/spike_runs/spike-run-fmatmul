@@ -15,3 +15,42 @@ The performance is 0.653 FLOP/cycle (8.163% utilization).
 
 ------------------------------------------------------------
 Calculating a (8 x 8) x (8 x 8) matrix multiplication...
+------------------------------------------------------------
+
+Calculating fmatmul...
+The execution took 311 cycles.
+The performance is 3.292 FLOP/cycle (41.157% utilization).
+
+------------------------------------------------------------
+Calculating a (16 x 16) x (16 x 16) matrix multiplication...
+------------------------------------------------------------
+
+Calculating fmatmul...
+The execution took 876 cycles.
+The performance is 9.351 FLOP/cycle (116.894% utilization).
+
+------------------------------------------------------------
+Calculating a (32 x 32) x (32 x 32) matrix multiplication...
+------------------------------------------------------------
+
+Calculating fmatmul...
+The execution took 3083 cycles.
+The performance is 21.257 FLOP/cycle (265.715% utilization).
+
+------------------------------------------------------------
+Calculating a (64 x 64) x (64 x 64) matrix multiplication...
+------------------------------------------------------------
+
+Calculating fmatmul...
+The execution took 11721 cycles.
+The performance is 44.730 FLOP/cycle (559.133% utilization).
+
+------------------------------------------------------------
+Calculating a (128 x 128) x (128 x 128) matrix multiplication...
+------------------------------------------------------------
+
+Calculating fmatmul...
+The execution took 49949 cycles.
+The performance is 83.971 FLOP/cycle (1049.646% utilization).
+Verifying result...
+Passed.

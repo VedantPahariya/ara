@@ -1,0 +1,56 @@
+{
+    "name": "Ara RISC-V Development Environment",
+    "image": "ubuntu:22.04",
+    
+    // Features to install
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": "true",
+            "configureZshAsDefaultShell": "true",
+            "installOhMyZsh": "true"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "ppa": "false"
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.10"
+        }
+    },
+
+    // Install additional packages
+    "updateContentCommand": "apt-get update && apt-get install -y libmpc-dev ninja-build flex libfl-dev help2man texinfo build-essential",
+
+    // Commands to run after the container is created
+    "postCreateCommand": [
+        "git config --global --add safe.directory /workspaces/ara",
+        "echo 'Container created. Run ./setup_codespace.sh to build the RISC-V toolchain.'"
+    ],
+
+    // VS Code settings for the container
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "files.watcherExclude": {
+                    "**/toolchain/**": true,
+                    "**/install/**": true
+                }
+            },
+            "extensions": [
+                "ms-vscode.cpptools-extension-pack",
+                "ms-python.python",
+                "redhat.vscode-yaml",
+                "ms-vscode.makefile-tools"
+            ]
+        }
+    },
+
+    // Port forwarding (if needed for any web interfaces)
+    "forwardPorts": [],
+
+    // Use 'postAttachCommand' to run commands when attaching to the container
+    "postAttachCommand": "echo 'Welcome to Ara RISC-V Development Environment! Run ./setup_codespace.sh to set up the toolchain.'",
+
+    // Comment out to connect as root instead
+    "remoteUser": "vscode"
+}
