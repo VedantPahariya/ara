@@ -41,3 +41,6 @@ make spike-run-<file_name>
 make bin/fmatmul
 make bin/fmatmul.spike
 make spike-run-fmatmul
+
+For Results:
+Check folder 'spike_runs' under apps for the output of above files.
