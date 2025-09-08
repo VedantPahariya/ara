@@ -192,3 +192,50 @@ ls -la /path/to/ara/install/riscv-llvm/bin/
 ```
 
 This script performs all steps automatically and provides verification.
+
+
+## Verilator Simulation 
+
+For setting up Verilator, refer to the [Verilator Setup Guide](Verilator_Setup_Fix.md).
+
+### 1. Initiating the Setup
+
+Ensure these environment variables are set:
+
+```bash
+export LD_LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LD_LIBRARY_PATH"
+export LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LIBRARY_PATH"
+```
+
+### 2. Modifying the functions/Kernel to test
+
+For Fmatmul, ensure the data file is generated:
+
+```bash
+python3 $ARA_ROOT/apps/fmatmul/script/gen_data.py 128 128 128 > $ARA_ROOT/apps/fmatmul/data.S
+```
+Above command creates data with M=128. Adjust as needed.
+
+```bash
+make bin/fmatmul
+```
+This is important to ensure the right kernel binary is built before simulation.
+
+Makefile in hardware/ has handled the number of cores can change it.
+
+
+### 3. Compiling the RTL into C++ 
+
+```bash
+# Navigate to your Ara project directory
+export ARA_ROOT=$(pwd)
+
+cd $ARA_ROOT/hardware
+make verilate
+```
+
+### 4. Running the Verilator Simulation
+
+```bash
+app=fmatmul make simv 
+```
