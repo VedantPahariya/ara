@@ -62,7 +62,7 @@ here file_name means any kernel or operation that you want to run/benchmark
 
 2. Step-2: Run the following commands
 ```bash
-cd /ssd_scratch/vedant.pahariya/ara/hardware
+cd ${ARA_ROOT}/hardware
 app=hello_world make verilate  # Build Verilator simulation
 app=hello_world make simv      # Run simulation
 ```
