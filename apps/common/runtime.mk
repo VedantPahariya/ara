@@ -33,7 +33,7 @@ ifndef config_mc
 	ifdef ARA_CONFIGURATION_MC
 		config_mc := $(ARA_CONFIGURATION_MC)
 	else
-		config_mc := mc_default
+		config_mc := default_mc
 	endif
 endif
 

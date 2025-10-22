@@ -13,4 +13,7 @@ ara_tb.cpp (`ara/hardware/tb/verilator/ara_tb.cpp`) is responsible for verilator
 
 Don't forget to apply the patch to add DPI functions to tc_sram.sv
 
+- In `ara/apps/common/runtime.mk`,
+Line numbers 36 set the default configuration for multicore to `default_mc` instead of `mc_default`.
+
 
