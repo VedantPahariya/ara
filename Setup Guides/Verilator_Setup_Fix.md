@@ -21,19 +21,40 @@ The fix involved building Verilator from source and resolving all dependency iss
 
 ## Step-by-Step Fix Process
 
+### Step 0: Setup Environment (Portable Configuration)
+
+Before starting, set up the environment variable for your Ara installation path:
+
+```bash
+# Navigate to your Ara project directory
+cd /path/to/your/ara  # Change this to your actual Ara location
+
+# Set the Ara root directory environment variable
+export ARA_ROOT=$(pwd)
+
+# Verify the path is correct
+echo "Ara root: $ARA_ROOT"
+ls $ARA_ROOT  # Should show: apps/, hardware/, toolchain/, etc.
+
+# Optional: Add to your shell profile for persistence
+echo "export ARA_ROOT=$ARA_ROOT" >> ~/.bashrc  # or ~/.zshrc
+```
+
+**Note**: All commands in this guide use `${ARA_ROOT}` which will work on any system once this variable is set correctly.
+
 ### Step 1: Investigate the Missing Verilator Installation
 
 First, we confirmed that Verilator was indeed missing:
 
 ```bash
-ls -la /ssd_scratch/vedant.pahariya/ara/install/verilator/
+ls -la ${ARA_ROOT}/install/verilator/
 # Result: No such file or directory
 ```
 
 We found that Verilator source code was available in the toolchain directory:
 
 ```bash
-ls -la /ssd_scratch/vedant.pahariya/ara/toolchain/verilator/
+ls -la ${ARA_ROOT}/toolchain/verilator/
 # Found Verilator 5.012 source code
 ```
 
@@ -42,7 +63,7 @@ ls -la /ssd_scratch/vedant.pahariya/ara/toolchain/verilator/
 Removed any dangling symbolic links or partial installations:
 
 ```bash
-cd /ssd_scratch/vedant.pahariya/ara
+cd ${ARA_ROOT}
 rm -f install/verilator  # Remove broken symlink if it exists
 ```
 
@@ -53,8 +74,8 @@ rm -f install/verilator  # Remove broken symlink if it exists
 First attempt with default compilers:
 
 ```bash
-cd /ssd_scratch/vedant.pahariya/ara/toolchain/verilator
-./configure --prefix=/ssd_scratch/vedant.pahariya/ara/install/verilator
+cd ${ARA_ROOT}/toolchain/verilator
+./configure --prefix=${ARA_ROOT}/install/verilator
 ```
 
 This succeeded, but the subsequent make failed due to compiler issues.
@@ -64,10 +85,11 @@ This succeeded, but the subsequent make failed due to compiler issues.
 The build failed with clang++ linking errors. We switched to GCC:
 
 ```bash
-cd /ssd_scratch/vedant.pahariya/ara/toolchain/verilator
+cd ${ARA_ROOT}/toolchain/verilator
 make clean  # Clean previous build artifacts
-CC=gcc CXX=g++ ./configure --prefix=/ssd_scratch/vedant.pahariya/ara/install/verilator
+CC=gcc CXX=g++ ./configure --prefix=${ARA_ROOT}/install/verilator
 ```
+used "make verilator CLANG_CC=gcc CLANG_CXX=g++" while multicore ara setup
 
 #### Successful Build and Installation
 
@@ -83,14 +105,14 @@ make install     # Install to the prefix directory
 After installation, we verified the basic functionality:
 
 ```bash
-/ssd_scratch/vedant.pahariya/ara/install/verilator/bin/verilator --version
+${ARA_ROOT}/install/verilator/bin/verilator --version
 # Output: Verilator 5.012 2023-01-15 rev v5.012
 ```
 
 Check installation structure:
 
 ```bash
-ls -la /ssd_scratch/vedant.pahariya/ara/install/verilator/
+ls -la ${ARA_ROOT}/install/verilator/
 # bin/  include/  share/
 ```
 
@@ -99,7 +121,7 @@ ls -la /ssd_scratch/vedant.pahariya/ara/install/verilator/
 During testing, we discovered that the Verilator wrapper script expected `verilator_bin` but only `verilator_bin_dbg` was present. We created the necessary symbolic links:
 
 ```bash
-cd /ssd_scratch/vedant.pahariya/ara/install/verilator/bin/
+cd ${ARA_ROOT}/install/verilator/bin/
 ln -sf verilator_bin_dbg verilator_bin
 ```
 
@@ -132,10 +154,10 @@ We copied the headers to the DPI module directory where they were needed:
 find /tmp/extracted -name "libelf.h"
 # Found: /tmp/extracted/usr/include/libelf.h
 
-cp /tmp/extracted/usr/include/libelf.h /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
-cp -r /tmp/extracted/usr/include/elfutils/ /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
-cp /tmp/extracted/usr/include/gelf.h /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
-cp /tmp/extracted/usr/include/nlist.h /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
+cp /tmp/extracted/usr/include/libelf.h ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
+cp -r /tmp/extracted/usr/include/elfutils/ ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
+cp /tmp/extracted/usr/include/gelf.h ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
+cp /tmp/extracted/usr/include/nlist.h ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/
 ```
 
 ### Step 7: Resolve libelf Runtime Library Issues
@@ -160,9 +182,9 @@ dpkg -x libelf1_0.186-1ubuntu0.1_amd64.deb extracted_lib/
 Created a local library directory and installed the library:
 
 ```bash
-mkdir -p /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib
-cp extracted_lib/usr/lib/x86_64-linux-gnu/libelf-0.186.so /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib/
-cd /ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib/
+mkdir -p ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib
+cp extracted_lib/usr/lib/x86_64-linux-gnu/libelf-0.186.so ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib/
+cd ${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib/
 ln -sf libelf-0.186.so libelf.so.1
 ln -sf libelf-0.186.so libelf.so
 ```
@@ -172,8 +194,8 @@ ln -sf libelf-0.186.so libelf.so
 Set the necessary environment variables for library discovery:
 
 ```bash
-export LD_LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LD_LIBRARY_PATH"
-export LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LIBRARY_PATH"
+export LD_LIBRARY_PATH="${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LD_LIBRARY_PATH"
+export LIBRARY_PATH="${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LIBRARY_PATH"
 ```
 
 ### Step 9: Successful Build and Test
@@ -181,7 +203,7 @@ export LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowr
 Finally, run the complete build process:
 
 ```bash
-cd /ssd_scratch/vedant.pahariya/ara/hardware
+cd ${ARA_ROOT}/hardware
 app=hello_world make verilate  # Build Verilator simulation
 app=hello_world make simv      # Run simulation
 ```
@@ -209,9 +231,9 @@ Simulation speed: 1680.69 cycles/s (1.68069 kHz)
 ## Key Files Created/Modified
 
 ### New Files Created:
-- `/ssd_scratch/vedant.pahariya/ara/install/verilator/` - Complete Verilator installation
-- `/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib/` - Local libelf library directory
-- `/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/libelf.h` - libelf header file
+- `${ARA_ROOT}/install/verilator/` - Complete Verilator installation
+- `${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib/` - Local libelf library directory
+- `${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp/libelf.h` - libelf header file
 
 ### Symbolic Links Created:
 - `verilator_bin -> verilator_bin_dbg`
@@ -223,8 +245,17 @@ Simulation speed: 1680.69 cycles/s (1.68069 kHz)
 For future builds, ensure these environment variables are set:
 
 ```bash
-export LD_LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LD_LIBRARY_PATH"
-export LIBRARY_PATH="/ssd_scratch/vedant.pahariya/ara/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LIBRARY_PATH"
+export ARA_ROOT=/path/to/your/ara  # Set this to your actual Ara installation path
+export LD_LIBRARY_PATH="${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LD_LIBRARY_PATH"
+export LIBRARY_PATH="${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LIBRARY_PATH"
+```
+
+**Tip**: Add these to your `~/.bashrc` or `~/.zshrc` to make them permanent:
+
+```bash
+echo "export ARA_ROOT=/path/to/your/ara" >> ~/.bashrc
+echo "export LD_LIBRARY_PATH=\"\${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:\$LD_LIBRARY_PATH\"" >> ~/.bashrc
+echo "export LIBRARY_PATH=\"\${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:\$LIBRARY_PATH\"" >> ~/.bashrc
 ```
 
 ## Lessons Learned
