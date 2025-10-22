@@ -20,9 +20,9 @@ ifndef config
 endif
 ifndef config_mc
 	ifdef ARA_CONFIGURATION_MC
-		config := $(ARA_CONFIGURATION_MC)
+		config_mc := $(ARA_CONFIGURATION_MC)
 	else
-		config := mc_default
+		config_mc := default_mc
 	endif
 endif
 
@@ -200,6 +200,7 @@ $(veril_library)/V$(veril_top): $(config_file) Makefile ../Bender.yml $(shell fi
   --compiler clang                                                              \
   -CFLAGS "-DTOPLEVEL_NAME=$(veril_top)"                                        \
   -CFLAGS "-DNR_LANES=$(nr_lanes)"                                              \
+  -CFLAGS "-DNR_CORES=$(nr_cores)" 										        \ 
   -CFLAGS -I$(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp       \
   -CFLAGS -I$(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_memutil_verilator/cpp \
   -CFLAGS -I$(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_simutil_verilator/cpp \
@@ -214,7 +215,7 @@ $(veril_library)/V$(veril_top): $(config_file) Makefile ../Bender.yml $(shell fi
   --cc                                                                          \
   $(if $(trace),--trace-fst -Wno-INSECURE,)                                     \
   --top-module $(veril_top) &&                                                  \
-	cd $(veril_library) && OBJCACHE='' make -j4 -f V$(veril_top).mk
+	cd $(veril_library) && OBJCACHE='' make -j$(shell nproc) -f V$(veril_top).mk
 
 # Simulation
 .PHONY: simv
