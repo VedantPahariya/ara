@@ -72,6 +72,12 @@ int main(int argc, char **argv) {
     std::cout << "  Address: 0x80000000 - 0x" << std::hex 
               << (0x80000000 + L2TotalSize - 1) << std::dec << std::endl;
     
+    simctrl.RegisterExtension(&memutil);
+    
+    bool exit_app = false;
+    int ret_code = simctrl.ParseCommandArgs(argc, argv, exit_app);
+    if (exit_app) return ret_code;
+
   } else {
     // Multi-core: Register each bank with unique name
     // Each bank covers THE SAME address space (interleaved)
@@ -87,69 +93,89 @@ int main(int argc, char **argv) {
                "TOP.ara_tb_verilator.dut.i_ara_soc.gen_l2_banks[%d].l2_mem",
                bank);
       
-      // ALL banks use the SAME address range
-      // The hardware interleaves by cache line (16 bytes)
-      MemAreaLoc l2_mem_bank = {
-        .base = 0x80000000,  // Same base for all banks
-        .size = static_cast<uint32_t>(L2TotalSize)  // Full address space
-      };
-      
-      memutil.RegisterMemoryArea(mem_name, mem_path, L2BankWidth, &l2_mem_bank);
-      
-      std::cout << "Bank " << bank << ": " << mem_path << std::endl;
-      std::cout << "  Region: '" << mem_name << "'" << std::endl;
-      std::cout << "  Address: 0x80000000 - 0x" << std::hex 
-                << (0x80000000 + L2TotalSize - 1) << std::dec 
-                << " (interleaved)" << std::endl;
+      memutil.RegisterMemoryArea(mem_name, mem_path, L2BankWidth, nullptr);
+      std::cout << "Registered: " << mem_name << " at " << mem_path << std::endl;
+
+      // std::cout << "Bank " << bank << ": " << mem_path << std::endl;
+      // std::cout << "  Region: '" << mem_name << "'" << std::endl;
+      // std::cout << "  Address: 0x80000000 - 0x" << std::hex 
+      //           << (0x80000000 + L2TotalSize - 1) << std::dec 
+      //           << " (interleaved)" << std::endl;
     }
     
-    std::cout << "\nNote: Memory is INTERLEAVED across banks by " 
-              << L2BankBeWidth << "-byte cache lines" << std::endl;
+    // Step 2: Extract ELF path from command line
+    std::string elf_path;
+    for (int i = 1; i < argc; i++) {
+      if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
+        std::string arg = argv[i + 1];
+        size_t first_comma = arg.find(',');
+        size_t second_comma = arg.find(',', first_comma + 1);
+        if (first_comma != std::string::npos) {
+          elf_path = arg.substr(first_comma + 1, 
+                                second_comma - first_comma - 1);
+          break;
+        }
+      }
+    }
+    
+    if (elf_path.empty()) {
+      std::cerr << "ERROR: No ELF file specified with -l" << std::endl;
+      return 1;
+    }
+    
+    std::cout << "\n=== Loading ELF with Bank Interleaving ===" << std::endl;
+    std::cout << "ELF: " << elf_path << std::endl;
+    std::cout << "Banks: " << L2NumBanks << std::endl;
+    
+    // Step 3: Load ELF to each bank with interleaving
+    for (int bank = 0; bank < L2NumBanks; bank++) {
+      char mem_name[64];
+      snprintf(mem_name, sizeof(mem_name), "ram%d", bank);
+      
+      std::cout << "Loading bank " << bank << "..." << std::endl;
+      
+      try {
+        memutil.LoadElfWithBanking(
+          /*verbose=*/true,
+          mem_name,
+          elf_path,
+          L2NumBanks,
+          bank
+        );
+      } catch (const std::exception &err) {
+        std::cerr << "ERROR: " << err.what() << std::endl;
+        return 1;
+      }
+    }
+    
+    std::cout << "=== ELF Loading Complete ===\n" << std::endl;
   }
-
-  // ============================================================================
-  // OPTION B: Contiguous Address Space (Alternative - simpler but less accurate)
-  // ============================================================================
-  // Uncomment this section if you want contiguous addressing instead
-  /*
-  for (int bank = 0; bank < L2NumBanks; bank++) {
-    char mem_name[64];
-    char mem_path[512];
-    
-    snprintf(mem_name, sizeof(mem_name), "ram%d", bank);
-    snprintf(mem_path, sizeof(mem_path), 
-             "TOP.ara_tb_verilator.dut.i_ara_soc.gen_l2_banks[%d].l2_mem",
-             bank);
-    
-    // Each bank at sequential address offset
-    MemAreaLoc l2_mem_bank = {
-      .base = static_cast<uint32_t>(0x80000000 + (bank * L2BankSize)),
-      .size = static_cast<uint32_t>(L2BankSize)
-    };
-    
-    memutil.RegisterMemoryArea(mem_name, mem_path, L2BankWidth, &l2_mem_bank);
-    
-    std::cout << "Bank " << bank << ": " << mem_path << std::endl;
-    std::cout << "  Region: '" << mem_name << "'" << std::endl;
-    std::cout << "  Address: 0x" << std::hex << l2_mem_bank.base 
-              << " - 0x" << (l2_mem_bank.base + l2_mem_bank.size - 1) 
-              << std::dec << std::endl;
-  }
-  */
-
-  std::cout << std::endl;
-
-  simctrl.RegisterExtension(&memutil);
+  
+  // Common simulation start
   simctrl.SetInitialResetDelay(5);
   simctrl.SetResetDuration(5);
-
-  bool exit_app = false;
-  int ret_code = simctrl.ParseCommandArgs(argc, argv, exit_app);
-  if (exit_app) {
-    return ret_code;
-  }
-
   simctrl.RunSimulation();
-
+  
   return tb->exit_o >> 1;
 }
+
+//     std::cout << "\nNote: Memory is INTERLEAVED across banks by " 
+//               << L2BankBeWidth << "-byte cache lines" << std::endl;
+//   }
+
+//   std::cout << std::endl;
+
+//   simctrl.RegisterExtension(&memutil);
+//   simctrl.SetInitialResetDelay(5);
+//   simctrl.SetResetDuration(5);
+
+//   bool exit_app = false;
+//   int ret_code = simctrl.ParseCommandArgs(argc, argv, exit_app);
+//   if (exit_app) {
+//     return ret_code;
+//   }
+
+//   simctrl.RunSimulation();
+
+//   return tb->exit_o >> 1;
+// }
