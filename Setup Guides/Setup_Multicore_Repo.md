@@ -1,4 +1,4 @@
-## Setup Instructions
+# Setup Instructions
 
 After cloning this repository, execute the following commands in order:
 
@@ -52,9 +52,9 @@ make riscv-isa-sim
 ```
 This command builds the Spike RISC-V ISA simulator library.
 
-## Benchmarking
+# Benchmarking
 
-For detailed benchmarking instructions, see the `benchmarking guide.md` file.
+For detailed benchmarking instructions, see the [`benchmarking guide.md`](benchmarking%20guide.md) file.
 
 ### Running Applications
 
@@ -80,8 +80,8 @@ Check folder 'spike_runs' under apps for the output of above files.
 
 ### Using Verilator 
 
-Refer verilator_setup_fix.md for more details    
-For future builds, First make sure these environment variables are set:
+Refer [`verilator_setup_fix.md`](verilator_setup_fix.md) for more details.    
+For future builds, first make sure these environment variables are set:
 
 ```bash
 export ARA_ROOT=$(pwd) # Set this to your actual Ara installation path
@@ -89,9 +89,9 @@ export LD_LIBRARY_PATH="${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_m
 export LIBRARY_PATH="${ARA_ROOT}/hardware/tb/verilator/lowrisc_dv_verilator_memutil_dpi/lib:$LIBRARY_PATH"
 ```
 
-For any file, you want to run. 
+For any file you want to run: 
 1. Step-1:  make bin/$file_name
-here file_name means any kernel or operation that you want to run/benchmark
+   - Here, file_name means any kernel or operation that you want to run/benchmark
 
 2. Step-2: Run the following commands
 ```bash
@@ -99,3 +99,14 @@ cd ${ARA_ROOT}/hardware
 app=hello_world make verilate  # Build Verilator simulation
 app=hello_world make simv      # Run simulation
 ```
+
+# Understanding Ara: Behind the Commands
+
+For an in-depth explanation of Ara and its workflow, refer to the [Command Workflow](https://docs.google.com/document/d/1PHaVQt3r2g7qtwZMLI2ezhs9PnT-vSlgOIZjWayBUj4/edit?usp=sharing) document.
+
+This document discusses about the working of following:
+- make verilate
+- make simv
+- ara_tb.sv VS ara_tb.cpp
+- Memory Hierarchical Path
+- Bankinterleaving
