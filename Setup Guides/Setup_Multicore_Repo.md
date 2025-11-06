@@ -39,7 +39,7 @@ git submodule sync --recursive
 ```bash
 make toolchain-llvm
 ```
-**Note:** If you encounter any errors, refer to the `Toolchain_Setup_Guide.md` for troubleshooting.
+**Note:** If you encounter any errors, refer to the [`Toolchain_Setup_Guide.md`](Toolchain_Setup_Guide.md) for troubleshooting.
 Ignore the errors of libgloss in ada
 
 From the Toolchain_Setup_Guide.md, do the setup for following:
@@ -52,9 +52,9 @@ make riscv-isa-sim
 ```
 This command builds the Spike RISC-V ISA simulator library.
 
-# Benchmarking
+# Benchmarking for Multicore
 
-For detailed benchmarking instructions, see the [`benchmarking guide.md`](benchmarking%20guide.md) file.
+For detailed benchmarking instructions, see the [`Benchmarking_Guide.md`](Benchmarking_Guide.md) file.
 
 ### Running Applications
 
@@ -80,7 +80,7 @@ Check folder 'spike_runs' under apps for the output of above files.
 
 ### Using Verilator 
 
-Refer [`verilator_setup_fix.md`](verilator_setup_fix.md) for more details.    
+Refer [`Verilator_Setup_Fix.md`](Verilator_Setup_Fix.md) for more details.    
 For future builds, first make sure these environment variables are set:
 
 ```bash
@@ -99,6 +99,12 @@ cd ${ARA_ROOT}/hardware
 app=hello_world make verilate  # Build Verilator simulation
 app=hello_world make simv      # Run simulation
 ```
+
+### Changing the Configs
+
+To change the configuration of Ara, modify the [`default_mc.mk`](../config/default_mc.mk) or [`default.mk`](../config/default.mk) file located in the root directory. You can set parameters such as the number of cores and lanes.
+Checkout [`default_args.mk`](../apps/common/default_args.mk) which set the matrix size (M,N,P) values for matrix multiplication and other apps.
+memory size, and other hardware configurations according to your requirements.
 
 # Understanding Ara: Behind the Commands
 
