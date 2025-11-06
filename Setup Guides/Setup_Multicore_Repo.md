@@ -2,7 +2,38 @@
 
 After cloning this repository, execute the following commands in order:
 
+### 0. Cloning Submodules Recursively
+Use the following instead of normal submodule update command to avoid timeout issues:
+```bash
+git -c submodule.recurse=true submodule update --init --recursive --depth 1
+git submodule sync --recursive
+```
+**Note:** While cloning the submodules, you might encounter errors similar to the ones shown below:
 
+- Just after cloning the branch `feat/multi-core` in the Ara repository, it may give the following error:
+```console
+  $ git submodule update --init --recursive
+  Cloning into '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/newlib'...
+  error: RPC failed; curl 18 transfer closed with outstanding read data remaining
+  fetch-pack: unexpected disconnect while reading sideband packet
+  fatal: early EOF
+  fatal: fetch-pack: invalid index-pack output
+  fatal: clone of 'https://sourceware.org/git/newlib-cygwin.git' into submodule path '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/newlib' failed
+  Failed to clone 'toolchain/newlib'. Retry scheduled
+  Cloning into '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/riscv-gnu-toolchain'...
+  Cloning into '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/riscv-isa-sim'...
+  Cloning into '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/riscv-llvm'...
+  Cloning into '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/verilator'...
+  Cloning into '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/newlib'...
+  error: RPC failed; curl 18 transfer closed with outstanding read data remaining
+  fetch-pack: unexpected disconnect while reading sideband packet
+  fatal: early EOF
+  fatal: fetch-pack: invalid index-pack output
+  fatal: clone of 'https://sourceware.org/git/newlib-cygwin.git' into submodule path '/ssd_scratch/vedant.pahariya/multicore/ara/toolchain/newlib' failed
+  Failed to clone 'toolchain/newlib' a second time, aborting
+```
+
+  git error "curl 18 transfer closed with outstanding read data remaining" means the HTTP transfer was interrupted by the server/network (timeout, proxy, flaky connection, or source server rate limiting). Above command avoids timeout. 
 
 ### 1. Build LLVM Toolchain
 ```bash
