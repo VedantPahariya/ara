@@ -1,12 +1,28 @@
 # Modification in Multicore
 
 - In `ara/hardware/Makefile`,  
-  - Line numbers 23,25 set the default configuration for multicore to `default_mc` instead of `mc_default`.  
-  - Line number 203 added a compiler flag to define the number of cores (`NR_CORES`) during Verilator compilation.  
+  - Line numbers 23,25 set the default configuration for multicore to `default_mc` instead of `mc_default` and update `config` to `config_mc`.  
+  - Line number 203 added a compiler flag to define the number of cores (`NR_CORES`) during Verilator compilation like following:  
+    ```makefile
+    -CFLAGS "-DNR_LANES=$(nr_lanes)"     \
+    -CFLAGS "-DNR_CORES=$(nr_cores)"     \
+    -CFLAGS -I$(ROOT_DIR)/tb/verilator/lowrisc_dv_verilator_memutil_dpi/cpp \
+    ```
   - Line number 218 modified the `make` command to use all available processors for faster compilation by replacing `-j4` with `-j$(shell nproc)`.  
 
 - In `ara/apps/common/runtime.mk`,  
 Line numbers 36 set the default configuration for multicore to `default_mc` instead of `mc_default`.  
+
+- In `Bender.lock` file, add cluster_interconnect dependency after axi and before common_cells as following:
+  ```makefile
+  cluster_interconnect:
+    revision: null
+    version: 1.2.1
+    source:
+      Git: "https://github.com/pulp-platform/cluster_interconnect.git"
+    dependencies:
+    - common_cells
+  ```
 
 - Information about Test Bench Files:  
   - ara_tb.sv (`ara/hardware/ara_tb.sv`) is updated to support multicore simulation for QuestaSim.  

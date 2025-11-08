@@ -102,9 +102,9 @@ app=hello_world make simv      # Run simulation
 
 ### Changing the Configs
 
-To change the configuration of Ara, modify the [`default_mc.mk`](../config/default_mc.mk) or [`default.mk`](../config/default.mk) file located in the root directory. You can set parameters such as the number of cores and lanes.
-Checkout [`default_args.mk`](../apps/common/default_args.mk) which set the matrix size (M,N,P) values for matrix multiplication and other apps.
-memory size, and other hardware configurations according to your requirements.
+To change the configuration of Ara, modify the [`default_mc.mk`](../config/default_mc.mk) or [`default.mk`](../config/default.mk) file located in the root directory. You can set parameters such as the number of cores and lanes.  
+Checkout [`default_args.mk`](../apps/common/default_args.mk) which set the matrix size (M,N,P) values for matrix multiplication and other apps.   
+You can also adjust the memory size, and other hardware configurations according to your requirements.
 
 # Understanding Ara: Behind the Commands
 
